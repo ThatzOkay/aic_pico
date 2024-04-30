@@ -78,7 +78,7 @@ static message_t request, response;
 struct {
     uint8_t frame_len;
     uint32_t time;
-} req_ctx;
+} req_ctx_bana;
 
 typedef struct __attribute__((packed)) {
     uint8_t count;
@@ -407,28 +407,28 @@ bool bana_feed(int c)
 {
     uint32_t now = time_us_32();
 
-    if ((req_ctx.frame_len == sizeof(request)) ||
-        (now - req_ctx.time > 100000))  {
-        req_ctx.frame_len = 0;
+    if ((req_ctx_bana.frame_len == sizeof(request)) ||
+        (now - req_ctx_bana.time > 100000))  {
+        req_ctx_bana.frame_len = 0;
     }
 
-    req_ctx.time = now;
+    req_ctx_bana.time = now;
 
-    request.raw[req_ctx.frame_len] = c;
-    req_ctx.frame_len++;
+    request.raw[req_ctx_bana.frame_len] = c;
+    req_ctx_bana.frame_len++;
 
-    if ((req_ctx.frame_len == 1) && (request.raw[0] == 0x55)) {
-        req_ctx.frame_len = 0;
-    } if ((req_ctx.frame_len == 3) &&
+    if ((req_ctx_bana.frame_len == 1) && (request.raw[0] == 0x55)) {
+        req_ctx_bana.frame_len = 0;
+    } if ((req_ctx_bana.frame_len == 3) &&
         (memcmp(request.hdr.padding, "\x00\x00\xff", 3) != 0)) {
         request.raw[0] = request.raw[1];
         request.raw[1] = request.raw[2];
-        req_ctx.frame_len--;
-    } if ((req_ctx.frame_len == 6) && (request.hdr.len == 0)) {
-        req_ctx.frame_len = 0;
-    } else if (req_ctx.frame_len == request.hdr.len + 7) {
+        req_ctx_bana.frame_len--;
+    } if ((req_ctx_bana.frame_len == 6) && (request.hdr.len == 0)) {
+        req_ctx_bana.frame_len = 0;
+    } else if (req_ctx_bana.frame_len == request.hdr.len + 7) {
         handle_frame();
-        req_ctx.frame_len = 0;
+        req_ctx_bana.frame_len = 0;
         expire_time = time_us_64() + BANA_EXPIRE_TIME;
     }
     return true;

@@ -22,7 +22,13 @@
 #define RGB_ORDER GRB // or RGB
 #define LED_DEF { 25, 22, 13, 15 }
 
+#ifdef USE_MATRIX
+#define KEYPAD_DEF_ROW { 6, 7, 8, 3 }
+#define KEYPAD_DEF_COL { 4, 5, 0 }
+#else
 #define KEYPAD_DEF { 6, 7, 8, 3, 4, 5, 0, 1, 2, 9, 10, 11 }
+#endif
+
 /* HID Keycode: https://github.com/hathach/tinyusb/blob/master/src/class/hid/hid.h */
 // Numpad: 1234567890-.
 #define KEYPAD_NKRO_MAP "\x59\x5a\x5b\x5c\x5d\x5e\x5f\x60\x61\x62\x56\x63"

@@ -149,7 +149,7 @@ struct {
     uint8_t check_sum;
     bool escaping;
     uint64_t time;
-} req_ctx;
+} req_ctx_aime;
 
 static void build_response(int payload_len)
 {
@@ -476,40 +476,40 @@ static uint64_t expire_time;
 bool aime_feed(int c)
 {
     if (c == 0xe0) {
-        req_ctx.active = true;
-        req_ctx.len = 0;
-        req_ctx.check_sum = 0;
-        req_ctx.escaping = false;
-        req_ctx.time = time_us_64();
+        req_ctx_aime.active = true;
+        req_ctx_aime.len = 0;
+        req_ctx_aime.check_sum = 0;
+        req_ctx_aime.escaping = false;
+        req_ctx_aime.time = time_us_64();
         return true;
     }
 
-    if (!req_ctx.active) {
+    if (!req_ctx_aime.active) {
         return false;
     }
 
     if (c == 0xd0) {
-        req_ctx.escaping = true;
+        req_ctx_aime.escaping = true;
         return true;
     }
 
-    if (req_ctx.escaping) {
+    if (req_ctx_aime.escaping) {
         c++;
-        req_ctx.escaping = false;
+        req_ctx_aime.escaping = false;
     }
 
-    if (req_ctx.len != 0 && req_ctx.len == request.len) {
-        if (req_ctx.check_sum == c) {
+    if (req_ctx_aime.len != 0 && req_ctx_aime.len == request.len) {
+        if (req_ctx_aime.check_sum == c) {
             handle_frame();
-            req_ctx.active = false;
+            req_ctx_aime.active = false;
             expire_time = time_us_64() + AIME_EXPIRE_TIME;
         }
         return true;
     }
 
-    request.raw[req_ctx.len] = c;
-    req_ctx.len++;
-    req_ctx.check_sum += c;
+    request.raw[req_ctx_aime.len] = c;
+    req_ctx_aime.len++;
+    req_ctx_aime.check_sum += c;
 
     return true;
 }
